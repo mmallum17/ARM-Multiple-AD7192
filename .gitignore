@@ -1,0 +1,9 @@
+.cproject
+.mxproject
+.project
+.settings
+adc.elf.launch
+adc.ioc
+mx.scratch
+STM32L152RE_FLASH.ld
+startup

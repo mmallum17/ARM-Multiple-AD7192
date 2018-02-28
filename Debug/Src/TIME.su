@@ -1,0 +1,5 @@
+TIME.c:63:15:TIME_Init	0	static
+TIME.c:74:6:TIME_StartMeasure	0	static
+TIME.c:84:15:TIME_StopMeasure	0	static
+TIME.c:94:6:TIME_DelayUs	0	static
+TIME.c:104:6:TIME_DelayMs	0	static

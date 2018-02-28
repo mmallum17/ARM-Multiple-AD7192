@@ -1,0 +1,6 @@
+Communication.c:59:15:I2C_Init	0	static
+Communication.c:76:15:I2C_Write	0	static
+Communication.c:96:15:I2C_Read	0	static
+Communication.c:127:15:SPI_Init	0	static
+Communication.c:145:15:SPI_Read	16	static
+Communication.c:172:15:SPI_Write	8	static

@@ -1,0 +1,12 @@
+ssd1306.c:160:6:ssd1306WriteCommand	24	static
+ssd1306.c:193:6:ssd1306_DrawPixel	8	static
+ssd1306.c:217:6:ssd1306_WriteData	24	dynamic
+ssd1306.c:179:6:updateScreen	16	static
+ssd1306.c:168:6:clearScreen	8	static
+ssd1306.c:117:6:ssd1306Init	8	static
+ssd1306.c:229:6:ssd1306_WriteChar	40	static
+ssd1306.c:275:6:ssd1306_WriteString	16	static
+ssd1306.c:294:6:setCursorX	0	static
+ssd1306.c:299:6:setCursorY	0	static
+ssd1306.c:304:9:getCursorX	0	static
+ssd1306.c:309:9:getCursorY	0	static

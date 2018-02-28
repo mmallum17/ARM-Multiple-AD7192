@@ -1,0 +1,12 @@
+AD7190.c:60:6:AD7190_SetRegisterValue	32	static
+AD7190.c:89:15:AD7190_GetRegisterValue	24	static
+AD7190.c:152:6:AD7190_Reset	16	static
+AD7190.c:124:15:AD7190_Init	8	static
+AD7190.c:175:6:AD7190_SetPower	8	static
+AD7190.c:193:6:AD7190_WaitRdyGoLow	16	static
+AD7190.c:210:6:AD7190_ChannelSelect	8	static
+AD7190.c:229:6:AD7190_Calibrate	8	static
+AD7190.c:255:6:AD7190_RangeSetup	16	static
+AD7190.c:274:15:AD7190_SingleConversion	8	static
+AD7190.c:294:15:AD7190_ContinuousReadAvg	16	static
+AD7190.c:321:15:AD7190_TemperatureRead	8	static

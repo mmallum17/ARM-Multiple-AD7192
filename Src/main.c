@@ -41,7 +41,9 @@
 #include "stm32l1xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "ssd1306.h"
+#include "AD7190.h"
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -62,7 +64,7 @@ static void MX_SPI1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+void floatToString(float value, char* floatString, int afterpoint);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -73,7 +75,10 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  unsigned long buffer;
+  float voltage;
+  char voltString[20];
+  char display[30];
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -98,17 +103,60 @@ int main(void)
   MX_SPI1_Init();
 
   /* USER CODE BEGIN 2 */
+  ssd1306Init();
+  clearScreen();
 
+  //HAL_GPIO_WritePin(ADC_1_CS_GPIO_Port, ADC_1_CS_Pin, GPIO_PIN_RESET);
+  ADI_PART_CS_LOW();
+  if(AD7190_Init())
+  {
+	  ssd1306_WriteString("Part Present", 1);
+	  updateScreen();
+  }
+  else
+  {
+	  ssd1306_WriteString("Part Not Present", 1);
+	  updateScreen();
+  }
+  ADI_PART_CS_HIGH();
+  ADI_PART_CS_LOW();
+  AD7190_RangeSetup(1, AD7190_CONF_GAIN_1);
+  ADI_PART_CS_HIGH();
   /* USER CODE END 2 */
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+  /* USER CODE BEGIN 3 */
   while (1)
   {
-  /* USER CODE END WHILE */
+	  // Read Channel 1
+	  ADI_PART_CS_LOW();
+	  AD7190_ChannelSelect(AD7190_CH_AIN1P_AIN2M);
+	  ADI_PART_CS_HIGH();
+	  ADI_PART_CS_LOW();
+	  buffer = AD7190_SingleConversion();
+	  ADI_PART_CS_HIGH();
+	  voltage = ((float)buffer / 16777216ul) * 5;
+	  floatToString(voltage, voltString, 2);
+	  sprintf(display,"%s V", voltString);
+	  clearScreen();
+	  ssd1306_WriteString(display, 1);
+	  updateScreen();
 
-  /* USER CODE BEGIN 3 */
-
+	  // Read Channel 2
+	  ADI_PART_CS_LOW();
+	  AD7190_ChannelSelect(AD7190_CH_AIN3P_AIN4M);
+	  ADI_PART_CS_HIGH();
+	  ADI_PART_CS_LOW();
+	  buffer = AD7190_SingleConversion();
+	  ADI_PART_CS_HIGH();
+	  voltage = ((float)buffer / 16777216ul) * 5;
+	  floatToString(voltage, voltString, 2);
+	  sprintf(display,"%s V", voltString);
+	  setCursorX(0);
+	  setCursorY(11);
+	  ssd1306_WriteString(display, 1);
+	  updateScreen();
+	  HAL_Delay(500);
   }
   /* USER CODE END 3 */
 
@@ -258,7 +306,14 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void floatToString(float value, char* floatString, int afterpoint)
+{
+	uint32_t intValue = value;
+	float tmpFrac = value - intValue;
+	uint32_t intFrac = trunc(tmpFrac * pow(10, afterpoint));
 
+	sprintf(floatString, "%lu.%lu", intValue, intFrac);
+}
 /* USER CODE END 4 */
 
 /**

@@ -64,7 +64,13 @@ static void MX_SPI1_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+unsigned char adcInit(uint8_t chip);
+void adcChipSelect(uint8_t chip);
+void adcChipDeselect(uint8_t chip);
 void floatToString(float value, char* floatString, int afterpoint);
+void adcRangeSetup(unsigned char polarity, unsigned char range, uint8_t chip);
+void adcChannelSelect(unsigned short channel, uint8_t chip);
+unsigned long adcSingleConversion(uint8_t chip);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -107,21 +113,23 @@ int main(void)
   clearScreen();
 
   //HAL_GPIO_WritePin(ADC_1_CS_GPIO_Port, ADC_1_CS_Pin, GPIO_PIN_RESET);
-  ADI_PART_CS_LOW();
-  if(AD7190_Init())
+  //adcChipSelect(1);
+  if(adcInit(1) && adcInit(2))
   {
-	  ssd1306_WriteString("Part Present", 1);
+	  ssd1306_WriteString("Parts Present", 1);
 	  updateScreen();
   }
   else
   {
-	  ssd1306_WriteString("Part Not Present", 1);
+	  ssd1306_WriteString("Part(s) Not Present", 1);
 	  updateScreen();
   }
-  ADI_PART_CS_HIGH();
-  ADI_PART_CS_LOW();
-  AD7190_RangeSetup(1, AD7190_CONF_GAIN_1);
-  ADI_PART_CS_HIGH();
+  //adcChipDeselect(1);
+  //adcChipSelect(1);
+  adcRangeSetup(1, AD7190_CONF_GAIN_1, 1);
+  adcRangeSetup(1, AD7190_CONF_GAIN_1, 2);
+  //AD7190_RangeSetup(1, AD7190_CONF_GAIN_1);
+  //adcChipDeselect(1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,12 +137,14 @@ int main(void)
   while (1)
   {
 	  // Read Channel 1
-	  ADI_PART_CS_LOW();
-	  AD7190_ChannelSelect(AD7190_CH_AIN1P_AIN2M);
-	  ADI_PART_CS_HIGH();
-	  ADI_PART_CS_LOW();
-	  buffer = AD7190_SingleConversion();
-	  ADI_PART_CS_HIGH();
+	  //adcChipSelect(1);
+	  adcChannelSelect(AD7190_CH_AIN1P_AIN2M, 1);
+	  //AD7190_ChannelSelect(AD7190_CH_AIN1P_AIN2M);
+	  //adcChipDeselect(1);
+	  //adcChipSelect(1);
+	  buffer = adcSingleConversion(1);
+	  //buffer = AD7190_SingleConversion();
+	  //adcChipDeselect(1);
 	  voltage = ((float)buffer / 16777216ul) * 5;
 	  floatToString(voltage, voltString, 2);
 	  sprintf(display,"%s V", voltString);
@@ -143,12 +153,14 @@ int main(void)
 	  updateScreen();
 
 	  // Read Channel 2
-	  ADI_PART_CS_LOW();
-	  AD7190_ChannelSelect(AD7190_CH_AIN3P_AIN4M);
-	  ADI_PART_CS_HIGH();
-	  ADI_PART_CS_LOW();
-	  buffer = AD7190_SingleConversion();
-	  ADI_PART_CS_HIGH();
+	  //adcChipSelect(1);
+	  adcChannelSelect(AD7190_CH_AIN3P_AIN4M, 1);
+	  buffer = adcSingleConversion(1);
+	  //AD7190_ChannelSelect(AD7190_CH_AIN3P_AIN4M);
+	  //adcChipDeselect(1);
+	  //adcChipSelect(1);
+	  //buffer = AD7190_SingleConversion();
+	  //adcChipDeselect(1);
 	  voltage = ((float)buffer / 16777216ul) * 5;
 	  floatToString(voltage, voltString, 2);
 	  sprintf(display,"%s V", voltString);
@@ -306,6 +318,64 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+unsigned char adcInit(uint8_t chip)
+{
+	unsigned char result;
+	adcChipSelect(chip);
+	result = AD7190_Init();
+	adcChipDeselect(chip);
+	return result;
+}
+
+void adcRangeSetup(unsigned char polarity, unsigned char range, uint8_t chip)
+{
+	adcChipSelect(chip);
+	AD7190_RangeSetup(polarity, range);
+	adcChipDeselect(chip);
+}
+
+void adcChannelSelect(unsigned short channel, uint8_t chip)
+{
+	adcChipSelect(chip);
+	AD7190_ChannelSelect(channel);
+	adcChipDeselect(chip);
+}
+
+unsigned long adcSingleConversion(uint8_t chip)
+{
+	unsigned long buffer;
+	adcChipSelect(chip);
+	buffer = AD7190_SingleConversion();
+	adcChipDeselect(chip);
+	return buffer;
+}
+
+void adcChipSelect(uint8_t chip)
+{
+	switch(chip)
+	{
+	case 1:
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+		break;
+	case 2:
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_RESET);
+		break;
+	}
+}
+
+void adcChipDeselect(uint8_t chip)
+{
+	switch(chip)
+	{
+	case 1:
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+		break;
+	case 2:
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4, GPIO_PIN_SET);
+		break;
+	}
+}
+
 void floatToString(float value, char* floatString, int afterpoint)
 {
 	uint32_t intValue = value;

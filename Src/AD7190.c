@@ -235,7 +235,7 @@ void AD7190_Calibrate(unsigned char mode, unsigned char channel)
     oldRegValue = AD7190_GetRegisterValue(AD7190_REG_MODE, 3, 1);
     oldRegValue &= ~AD7190_MODE_SEL(0x7);
     newRegValue = oldRegValue | AD7190_MODE_SEL(mode);
-    ADI_PART_CS_LOW();
+    //ADI_PART_CS_LOW();
     AD7190_SetRegisterValue(AD7190_REG_MODE, newRegValue, 3, 0); // CS is not modified.
     AD7190_WaitRdyGoLow();
     //ADI_PART_CS_HIGH();
@@ -277,7 +277,7 @@ unsigned long AD7190_SingleConversion(void)
     unsigned long regData = 0x0;
  
     command = AD7190_MODE_SEL(AD7190_MODE_SINGLE) | AD7190_MODE_CLKSRC(AD7190_CLK_INT) | AD7190_MODE_RATE(0x060);
-    ADI_PART_CS_LOW();
+    //ADI_PART_CS_LOW();
     AD7190_SetRegisterValue(AD7190_REG_MODE, command, 3, 0); // CS is not modified.
     AD7190_WaitRdyGoLow();
     regData = AD7190_GetRegisterValue(AD7190_REG_DATA, 3, 0);
@@ -300,7 +300,7 @@ unsigned long AD7190_ContinuousReadAvg(unsigned char sampleNumber)
     command = AD7190_MODE_SEL(AD7190_MODE_CONT) | 
               AD7190_MODE_CLKSRC(AD7190_CLK_INT) |
               AD7190_MODE_RATE(0x060);
-    ADI_PART_CS_LOW();
+    //ADI_PART_CS_LOW();
     AD7190_SetRegisterValue(AD7190_REG_MODE, command, 3, 0); // CS is not modified.
     for(count = 0;count < sampleNumber;count ++)
     {
